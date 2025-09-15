@@ -23,7 +23,7 @@ tasksRouter.post('/', async (req, res, next) => {
             user: userId,
             title: req.body.title,
             description: req.body.description,
-            status: req.body.status,
+            status: req.body.status || 'new',
         });
 
         await task.save();
@@ -49,6 +49,43 @@ tasksRouter.get('/', async (req, res, next) => {
         res.send({tasks});
     } catch (e) {
         next(e);
+    }
+});
+
+tasksRouter.put('/:id', async (req, res, next) => {
+    try {
+        const token = req.get('Authorization');
+
+        if (!token) {
+            res.status(401).send({ error: 'Authorization token required' });
+            return;
+        }
+
+        const taskId = req.params.id;
+        const updates = {
+            title: req.body.title,
+            description: req.body.description,
+            status: req.body.status
+        };
+
+        const updatedTask = await Task.findByIdAndUpdate(
+            taskId,
+            updates,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedTask) {
+            res.status(404).send({ error: 'Task not found' });
+            return;
+        }
+
+        res.send({
+            message: 'Task updated successfully',
+            task: updatedTask
+        });
+
+    } catch (error) {
+        next(error);
     }
 });
 
