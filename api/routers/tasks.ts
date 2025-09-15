@@ -89,5 +89,32 @@ tasksRouter.put('/:id', async (req, res, next) => {
     }
 });
 
+tasksRouter.delete('/:id', async (req, res, next) => {
+    try {
+        const token = req.get('Authorization');
+
+        if (!token) {
+            res.status(401).send({ error: 'Authorization token required' });
+            return;
+        }
+
+        const taskId = req.params.id;
+        const deletedTask = await Task.findByIdAndDelete(taskId);
+
+        if (!deletedTask) {
+            res.status(404).send({ error: 'Task not found' });
+            return;
+        }
+
+        res.send({
+            message: 'Task deleted successfully',
+            task: deletedTask
+        });
+
+    } catch (error) {
+        next(error);
+    }
+});
+
 
 export default tasksRouter;
