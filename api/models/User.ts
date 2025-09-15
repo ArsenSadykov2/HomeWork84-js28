@@ -8,16 +8,9 @@ interface UserMethods {
     generateToken(): void;
 }
 
-type UserModel = Model<UserFields, {}, UserMethods>;
-
 const SALT_WORK_FACTOR = 10;
 
-const UserSchema = new mongoose.Schema<
-    HydratedDocument<UserFields>,
-    UserModel,
-    UserMethods,
-    {}
->({
+const UserSchema = new mongoose.Schema<UserFields>({
     username: {
         type: String,
         unique: true,
